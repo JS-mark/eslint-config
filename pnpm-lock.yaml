@@ -108,12 +108,12 @@ importers:
       '@antfu/ni':
         specifier: ^0.21.10
         version: 0.21.10
+      '@tm2js/eslint-config':
+        specifier: workspace:*
+        version: 'link:'
       '@stylistic/eslint-plugin-migrate':
         specifier: ^1.4.0
         version: 1.4.0(eslint@8.54.0)(typescript@5.3.2)
-      '@t2m/eslint-config':
-        specifier: workspace:*
-        version: 'link:'
       '@types/eslint':
         specifier: ^8.44.7
         version: 8.44.7
@@ -793,7 +793,6 @@ packages:
     resolution: {integrity: sha512-FEuAjzVIld5WVhu+M2OewLmjmbXWd3q7Zcx+Rwy4QObQCqfblriDMMS7p7+pwgjZoo9BLkP3wa9uglQXzsB9ww==}
     cpu: [arm64]
     os: [linux]
-    libc: [glibc]
     requiresBuild: true
     optional: true
 
@@ -801,7 +800,6 @@ packages:
     resolution: {integrity: sha512-f5Gs8WQixqGRtI0Iq/cMqvFYmgFzMinuJO24KRfnv7Ohi/HQclwrBCYkzQu1XfLEEt3DZyvveq9HWo4bLJf1Lw==}
     cpu: [arm64]
     os: [linux]
-    libc: [musl]
     requiresBuild: true
     optional: true
 
@@ -809,7 +807,6 @@ packages:
     resolution: {integrity: sha512-CWPkPGrFfN2vj3mw+S7A/4ZaU3rTV7AkXUr08W9lNP+UzOvKLVf34tWCqrKrfwQ0NTk5GFqUr2XGpeR2p6R4gw==}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
     requiresBuild: true
     optional: true
 
@@ -817,7 +814,6 @@ packages:
     resolution: {integrity: sha512-ZRETMFA0uVukUC9u31Ed1nx++29073goCxZtmZARwk5aF/ltuENaeTtRVsSQzFlzdd4J6L3qUm+EW8cbGt0CKQ==}
     cpu: [x64]
     os: [linux]
-    libc: [musl]
     requiresBuild: true
     optional: true
 

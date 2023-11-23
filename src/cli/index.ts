@@ -7,11 +7,11 @@ import { run } from './run'
 import { CROSS, version } from './constants'
 
 function header() {
-  console.log(`\n${c.green(`@t2m/eslint-config `)}${c.dim(`v${version}`)}`)
+  console.log(`\n${c.green(`@tm2js/eslint-config `)}${c.dim(`v${version}`)}`)
 }
 
 const instance = yargs(hideBin(process.argv))
-  .scriptName('@t2m/eslint-config')
+  .scriptName('@tm2js/eslint-config')
   .usage('')
   .command(
     '*',

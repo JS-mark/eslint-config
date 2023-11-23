@@ -1,8 +1,8 @@
 // @ts-check
 import styleMigrate from '@stylistic/eslint-plugin-migrate'
-import t2m from './dist/index.js'
+import tm2js from './dist/index.js'
 
-export default t2m(
+export default tm2js(
   {
     vue: true,
     // react: true,

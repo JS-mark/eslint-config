@@ -1,8 +1,8 @@
-# @t2m/eslint-config
+# @tm2js/eslint-config
 
 Forked from [`@antfu/eslint-config`](https://github.com/antfu/eslint-config)
 
-[![npm](https://img.shields.io/npm/v/@t2m/eslint-config.svg)](https://npmjs.com/package/@t2m/eslint-config) [![code style](https://img.shields.io/badge/Code_Style-🚀_The_Mark-blue)](https://github.com/js-mark/eslint-config)
+[![npm](https://img.shields.io/npm/v/@tm2js/eslint-config.svg)](https://npmjs.com/package/@tm2js/eslint-config) [![code style](https://img.shields.io/badge/Code_Style-🚀_The_Mark-blue)](https://github.com/js-mark/eslint-config)
 
 - Single quotes, no semi
 - Auto fix for formatting (aimed to be used standalone **without** Prettier)
@@ -23,7 +23,7 @@ Forked from [`@antfu/eslint-config`](https://github.com/antfu/eslint-config)
 ### Install
 
 ```bash
-pnpm i -D eslint @t2m/eslint-config
+pnpm i -D eslint @tm2js/eslint-config
 ```
 
 ### Create config file
@@ -32,30 +32,30 @@ With [`"type": "module"`](https://nodejs.org/api/packages.html#type) in `package
 
 ```js
 // eslint.config.js
-import t2m from '@t2m/eslint-config'
+import tm2js from '@tm2js/eslint-config'
 
-export default await t2m()
+export default await tm2js()
 ```
 
 With CJS:
 
 ```js
 // eslint.config.js
-const t2m = require('@t2m/eslint-config').default
+const tm2js = require('@tm2js/eslint-config').default
 
-module.exports = t2m()
+module.exports = tm2js()
 ```
 
 Combined with legacy config:
 
 ```js
 // eslint.config.js
-const t2m = require('@t2m/eslint-config').default
+const tm2js = require('@tm2js/eslint-config').default
 const { FlatCompat } = require('@eslint/eslintrc')
 
 const compat = new FlatCompat()
 
-module.exports = t2m(
+module.exports = tm2js(
   {
     ignores: [],
   },
@@ -92,7 +92,7 @@ For example:
 We provided an experimental CLI tool to help you migrate from the legacy config to the new flat config.
 
 ```bash
-npx @t2m/eslint-config@latest
+npx @tm2js/eslint-config@latest
 ```
 
 Before running the migration, make sure to commit your unsaved changes first.
@@ -151,22 +151,22 @@ Add the following settings to your `.vscode/settings.json`:
 
 Since v1.0, we migrated to [ESLint Flat config](https://eslint.org/docs/latest/use/configure/configuration-files-new). It provides much better organization and composition.
 
-Normally you only need to import the `t2m` preset:
+Normally you only need to import the `tm2js` preset:
 
 ```js
 // eslint.config.js
-import t2m from '@t2m/eslint-config'
+import tm2js from '@tm2js/eslint-config'
 
-export default await t2m()
+export default await tm2js()
 ```
 
 And that's it! Or you can configure each integration individually, for example:
 
 ```js
 // eslint.config.js
-import t2m from '@t2m/eslint-config'
+import tm2js from '@tm2js/eslint-config'
 
-export default await t2m({
+export default await tm2js({
   // Enable stylistic formatting rules
   // stylistic: true,
 
@@ -192,13 +192,13 @@ export default await t2m({
 })
 ```
 
-The `t2m` factory function also accepts any number of arbitrary custom config overrides:
+The `tm2js` factory function also accepts any number of arbitrary custom config overrides:
 
 ```js
 // eslint.config.js
-import t2m from '@t2m/eslint-config'
+import tm2js from '@tm2js/eslint-config'
 
-export default await t2m(
+export default await tm2js(
   {
     // Configures for Mark's config
   },
@@ -241,7 +241,7 @@ import {
   unicorn,
   vue,
   yaml,
-} from '@t2m/eslint-config'
+} from '@tm2js/eslint-config'
 
 export default await combine(
   ignores(),
@@ -294,9 +294,9 @@ Certain rules would only be enabled in specific files, for example, `ts/*` rules
 
 ```js
 // eslint.config.js
-import t2m from '@t2m/eslint-config'
+import tm2js from '@tm2js/eslint-config'
 
-export default await t2m(
+export default await tm2js(
   { vue: true, typescript: true },
   {
     // Remember to specify the file glob here, otherwise it might cause the vue plugin to handle non-vue files
@@ -318,9 +318,9 @@ We also provided a `overrides` options to make it easier:
 
 ```js
 // eslint.config.js
-import t2m from '@t2m/eslint-config'
+import tm2js from '@tm2js/eslint-config'
 
-export default t2m({
+export default tm2js({
   overrides: {
     vue: {
       'vue/operator-linebreak': ['error', 'before'],
@@ -344,9 +344,9 @@ To enable React support, need to explicitly turn it on:
 
 ```js
 // eslint.config.js
-import t2m from '@t2m/eslint-config'
+import tm2js from '@tm2js/eslint-config'
 
-export default t2m({
+export default tm2js({
   react: true,
 })
 ```
@@ -385,9 +385,9 @@ You can optionally enable the [type aware rules](https://typescript-eslint.io/li
 
 ```js
 // eslint.config.js
-import t2m from '@t2m/eslint-config'
+import tm2js from '@tm2js/eslint-config'
 
-export default t2m({
+export default tm2js({
   typescript: {
     tsconfigPath: 'tsconfig.json',
   },

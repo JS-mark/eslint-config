@@ -1,4 +1,4 @@
-import { t2m } from './factory'
+import { tm2js } from './factory'
 
 export * from './configs'
 export * from './factory'
@@ -6,4 +6,4 @@ export * from './globs'
 export * from './types'
 export * from './utils'
 
-export default t2m
+export default tm2js

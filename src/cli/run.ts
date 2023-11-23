@@ -37,12 +37,12 @@ export async function run(options: RuleOptions = {}) {
     throw new Error('There are uncommitted changes in the current repository, please commit them and try again')
 
   // Update package.json
-  console.log(c.cyan(`${ARROW} bumping @t2m/eslint-config to v${version}`))
+  console.log(c.cyan(`${ARROW} bumping @tm2js/eslint-config to v${version}`))
   const pkgContent = await fsp.readFile(pathPackageJSON, 'utf-8')
   const pkg: Record<string, any> = JSON.parse(pkgContent)
 
   pkg.devDependencies ??= {}
-  pkg.devDependencies['@t2m/eslint-config'] = `^${version}`
+  pkg.devDependencies['@tm2js/eslint-config'] = `^${version}`
 
   if (!pkg.devDependencies.eslint)
     pkg.devDependencies.eslint = eslintVersion
@@ -69,19 +69,19 @@ export async function run(options: RuleOptions = {}) {
 
   let eslintConfigContent: string = ''
 
-  const t2mConfig = `${eslintIgnores.length ? `ignores: ${JSON.stringify(eslintIgnores)}` : ''}`
+  const tm2jsConfig = `${eslintIgnores.length ? `ignores: ${JSON.stringify(eslintIgnores)}` : ''}`
   if (pkg.type === 'module') {
     eslintConfigContent = `
-import t2m from '@t2m/eslint-config'
+import tm2js from '@tm2js/eslint-config'
 
-export default t2m({\n${t2mConfig}\n})
+export default tm2js({\n${tm2jsConfig}\n})
 `.trimStart()
   }
   else {
     eslintConfigContent = `
-const t2m = require('@t2m/eslint-config').default
+const tm2js = require('@tm2js/eslint-config').default
 
-module.exports = t2m({\n${t2mConfig}\n})
+module.exports = tm2js({\n${tm2jsConfig}\n})
 `.trimStart()
   }
 

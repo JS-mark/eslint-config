@@ -67,9 +67,9 @@ function runWithConfig(name: string, configs: OptionsConfig, ...items: FlatConfi
     })
     await fs.writeFile(join(target, 'eslint.config.js'), `
 // @eslint-disable
-import t2m from '@t2m/eslint-config'
+import tm2js from '@tm2js/eslint-config'
 
-export default t2m(
+export default tm2js(
   ${JSON.stringify(configs)},
   ...${JSON.stringify(items) ?? []},
 )
