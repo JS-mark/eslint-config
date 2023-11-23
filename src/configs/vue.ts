@@ -1,131 +1,141 @@
-import { getPackageInfoSync } from 'local-pkg'
-import tsPlugin from '@typescript-eslint/eslint-plugin'
+import { interopDefault } from '../utils'
+import type { FlatConfigItem, OptionsFiles, OptionsHasTypeScript, OptionsOverrides, OptionsStylistic } from '../types'
 import { GLOB_VUE } from '../globs'
-import { parserVue, pluginVue } from '../plugins'
-import { typescript } from './typescript'
-import type { FlatESLintConfigItem, Rules } from 'eslint-define-config'
 
-export function getVueVersion() {
-  const pkg = getPackageInfoSync('vue', { paths: [process.cwd()] })
-  if (
-    pkg &&
-    typeof pkg.version === 'string' &&
-    !Number.isNaN(+pkg.version[0])
-  ) {
-    return +pkg.version[0]
-  }
-  return 3
-}
-const isVue3 = getVueVersion() === 3
+export async function vue(
+  options: OptionsHasTypeScript & OptionsOverrides & OptionsStylistic & OptionsFiles = {},
+): Promise<FlatConfigItem[]> {
+  const {
+    files = [GLOB_VUE],
+    overrides = {},
+    stylistic = true,
+  } = options
 
-export const reactivityTransform: FlatESLintConfigItem[] = [
-  {
-    languageOptions: {
-      globals: {
-        $: 'readonly',
-        $$: 'readonly',
-        $computed: 'readonly',
-        $customRef: 'readonly',
-        $ref: 'readonly',
-        $shallowRef: 'readonly',
-        $toRef: 'readonly',
+  const {
+    indent = 2,
+  } = typeof stylistic === 'boolean' ? {} : stylistic
+
+  const [
+    pluginVue,
+    parserVue,
+  ] = await Promise.all([
+    // @ts-expect-error missing types
+    interopDefault(import('eslint-plugin-vue')),
+    interopDefault(import('vue-eslint-parser')),
+  ] as const)
+
+  return [
+    {
+      name: 'antfu:vue:setup',
+      plugins: {
+        vue: pluginVue,
       },
     },
-    plugins: {
-      vue: pluginVue,
-    },
-    rules: {
-      'vue/no-setup-props-reactivity-loss': 'off',
-    },
-  },
-]
-
-const vueCustomRules: Rules = {
-  'vue/block-order': ['error', { order: ['script', 'template', 'style'] }],
-  'vue/custom-event-name-casing': ['error', 'camelCase'],
-  'vue/eqeqeq': ['error', 'smart'],
-  'vue/html-self-closing': [
-    'error',
     {
-      html: {
-        component: 'always',
-        normal: 'always',
-        void: 'always',
-      },
-      math: 'always',
-      svg: 'always',
-    },
-  ],
-  'vue/max-attributes-per-line': 'off',
-
-  'vue/multi-word-component-names': 'off',
-  'vue/no-constant-condition': 'warn',
-  'vue/no-empty-pattern': 'error',
-  'vue/no-loss-of-precision': 'error',
-  'vue/no-unused-refs': 'error',
-  'vue/no-useless-v-bind': 'error',
-
-  'vue/no-v-html': 'off',
-  'vue/object-shorthand': [
-    'error',
-    'always',
-    {
-      avoidQuotes: true,
-      ignoreConstructors: false,
-    },
-  ],
-  'vue/one-component-per-file': 'off',
-  'vue/padding-line-between-blocks': ['error', 'always'],
-  'vue/prefer-template': 'error',
-  'vue/require-default-prop': 'off',
-  'vue/require-prop-types': 'off',
-}
-
-const vue3Rules: Rules = {
-  ...pluginVue.configs.base.rules,
-  ...pluginVue.configs['vue3-essential'].rules,
-  ...pluginVue.configs['vue3-strongly-recommended'].rules,
-  ...pluginVue.configs['vue3-recommended'].rules,
-}
-
-const vue2Rules: Rules = {
-  ...pluginVue.configs.base.rules,
-  ...pluginVue.configs.essential.rules,
-  ...pluginVue.configs['strongly-recommended'].rules,
-  ...pluginVue.configs.recommended.rules,
-}
-
-export const vue: FlatESLintConfigItem[] = [
-  {
-    files: [GLOB_VUE],
-    languageOptions: {
-      parser: parserVue,
-      parserOptions: {
-        ecmaFeatures: {
-          jsx: true,
+      files,
+      languageOptions: {
+        parser: parserVue,
+        parserOptions: {
+          ecmaFeatures: {
+            jsx: true,
+          },
+          extraFileExtensions: ['.vue'],
+          parser: options.typescript
+            ? await interopDefault(import('@typescript-eslint/parser')) as any
+            : null,
+          sourceType: 'module',
         },
-        extraFileExtensions: ['.vue'],
-        parser: '@typescript-eslint/parser',
-        sourceType: 'module',
+      },
+      name: 'antfu:vue:rules',
+      processor: pluginVue.processors['.vue'],
+      rules: {
+        ...pluginVue.configs.base.rules as any,
+        ...pluginVue.configs['vue3-essential'].rules as any,
+        ...pluginVue.configs['vue3-strongly-recommended'].rules as any,
+        ...pluginVue.configs['vue3-recommended'].rules as any,
+
+        'node/prefer-global/process': 'off',
+
+        'vue/block-order': ['error', {
+          order: ['script', 'template', 'style'],
+        }],
+        'vue/component-name-in-template-casing': ['error', 'PascalCase'],
+        'vue/component-options-name-casing': ['error', 'PascalCase'],
+        'vue/custom-event-name-casing': ['error', 'camelCase'],
+        'vue/define-macros-order': ['error', {
+          order: ['defineOptions', 'defineProps', 'defineEmits', 'defineSlots'],
+        }],
+        'vue/dot-location': ['error', 'property'],
+        'vue/dot-notation': ['error', { allowKeywords: true }],
+        'vue/eqeqeq': ['error', 'smart'],
+        'vue/html-indent': ['error', indent],
+        'vue/html-quotes': ['error', 'double'],
+        'vue/max-attributes-per-line': 'off',
+        'vue/multi-word-component-names': 'off',
+        'vue/no-dupe-keys': 'off',
+        'vue/no-empty-pattern': 'error',
+        'vue/no-extra-parens': ['error', 'functions'],
+        'vue/no-irregular-whitespace': 'error',
+        'vue/no-loss-of-precision': 'error',
+        'vue/no-restricted-syntax': [
+          'error',
+          'DebuggerStatement',
+          'LabeledStatement',
+          'WithStatement',
+        ],
+        'vue/no-restricted-v-bind': ['error', '/^v-/'],
+        'vue/no-setup-props-reactivity-loss': 'off',
+        'vue/no-sparse-arrays': 'error',
+        'vue/no-unused-refs': 'error',
+        'vue/no-useless-v-bind': 'error',
+        'vue/no-v-html': 'off',
+        'vue/object-shorthand': [
+          'error',
+          'always',
+          {
+            avoidQuotes: true,
+            ignoreConstructors: false,
+          },
+        ],
+        'vue/prefer-separate-static-class': 'error',
+        'vue/prefer-template': 'error',
+        'vue/prop-name-casing': ['error', 'camelCase'],
+        'vue/require-default-prop': 'off',
+        'vue/require-prop-types': 'off',
+        'vue/space-infix-ops': 'error',
+        'vue/space-unary-ops': ['error', { nonwords: false, words: true }],
+
+        ...stylistic
+          ? {
+              'vue/array-bracket-spacing': ['error', 'never'],
+              'vue/arrow-spacing': ['error', { after: true, before: true }],
+              'vue/block-spacing': ['error', 'always'],
+              'vue/block-tag-newline': ['error', {
+                multiline: 'always',
+                singleline: 'always',
+              }],
+              'vue/brace-style': ['error', 'stroustrup', { allowSingleLine: true }],
+              'vue/comma-dangle': ['error', 'always-multiline'],
+              'vue/comma-spacing': ['error', { after: true, before: false }],
+              'vue/comma-style': ['error', 'last'],
+              'vue/html-comment-content-spacing': ['error', 'always', {
+                exceptions: ['-'],
+              }],
+              'vue/key-spacing': ['error', { afterColon: true, beforeColon: false }],
+              'vue/keyword-spacing': ['error', { after: true, before: true }],
+              'vue/object-curly-newline': 'off',
+              'vue/object-curly-spacing': ['error', 'always'],
+              'vue/object-property-newline': ['error', { allowMultiplePropertiesPerLine: true }],
+              'vue/operator-linebreak': ['error', 'before'],
+              'vue/padding-line-between-blocks': ['error', 'always'],
+              'vue/quote-props': ['error', 'consistent-as-needed'],
+              'vue/space-in-parens': ['error', 'never'],
+              'vue/template-curly-spacing': 'error',
+            }
+          : {},
+
+        ...overrides,
       },
     },
-    plugins: {
-      '@typescript-eslint': tsPlugin,
-      vue: pluginVue,
-    },
-    processor: pluginVue.processors['.vue'],
-    rules: {
-      ...typescript[0].rules,
-    },
-  },
-  {
-    plugins: {
-      vue: pluginVue,
-    },
-    rules: {
-      ...(isVue3 ? vue3Rules : vue2Rules),
-      ...vueCustomRules,
-    },
-  },
-  ...reactivityTransform,
-]
+  ]
+}

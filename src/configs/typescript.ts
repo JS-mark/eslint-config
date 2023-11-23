@@ -1,73 +1,154 @@
-import { GLOB_TS, GLOB_TSX } from '../globs'
-import { parserTypeScript, pluginAntfu, pluginTypeScript } from '../plugins'
-import type { FlatESLintConfigItem } from 'eslint-define-config'
+import process from 'node:process'
+import type { FlatConfigItem, OptionsComponentExts, OptionsFiles, OptionsOverrides, OptionsTypeScriptParserOptions, OptionsTypeScriptWithTypes } from '../types'
+import { GLOB_SRC } from '../globs'
+import { pluginAntfu } from '../plugins'
+import { interopDefault, renameRules, toArray } from '../utils'
 
-export const typescript: FlatESLintConfigItem[] = [
-  {
-    files: [GLOB_TS, GLOB_TSX],
-    languageOptions: {
-      parser: parserTypeScript,
-      parserOptions: {
-        sourceType: 'module',
+export async function typescript(
+  options: OptionsFiles & OptionsComponentExts & OptionsOverrides & OptionsTypeScriptWithTypes & OptionsTypeScriptParserOptions = {},
+): Promise<FlatConfigItem[]> {
+  const {
+    componentExts = [],
+    overrides = {},
+    parserOptions = {},
+  } = options
+
+  const files = options.files ?? [
+    GLOB_SRC,
+    ...componentExts.map(ext => `**/*.${ext}`),
+  ]
+
+  const typeAwareRules: FlatConfigItem['rules'] = {
+    'dot-notation': 'off',
+    'no-implied-eval': 'off',
+    'no-throw-literal': 'off',
+    'ts/await-thenable': 'error',
+    'ts/dot-notation': ['error', { allowKeywords: true }],
+    'ts/no-floating-promises': 'error',
+    'ts/no-for-in-array': 'error',
+    'ts/no-implied-eval': 'error',
+    'ts/no-misused-promises': 'error',
+    'ts/no-throw-literal': 'error',
+    'ts/no-unnecessary-type-assertion': 'error',
+    'ts/no-unsafe-argument': 'error',
+    'ts/no-unsafe-assignment': 'error',
+    'ts/no-unsafe-call': 'error',
+    'ts/no-unsafe-member-access': 'error',
+    'ts/no-unsafe-return': 'error',
+    'ts/restrict-plus-operands': 'error',
+    'ts/restrict-template-expressions': 'error',
+    'ts/unbound-method': 'error',
+  }
+
+  const tsconfigPath = options?.tsconfigPath
+    ? toArray(options.tsconfigPath)
+    : undefined
+
+  const [
+    pluginTs,
+    parserTs,
+  ] = await Promise.all([
+    interopDefault(import('@typescript-eslint/eslint-plugin')),
+    interopDefault(import('@typescript-eslint/parser')),
+  ] as const)
+
+  return [
+    {
+      // Install the plugins without globs, so they can be configured separately.
+      name: 'antfu:typescript:setup',
+      plugins: {
+        antfu: pluginAntfu,
+        ts: pluginTs as any,
       },
     },
-    plugins: {
-      '@typescript-eslint': pluginTypeScript,
-      antfu: pluginAntfu,
-    },
-    rules: {
-      ...pluginTypeScript.configs['eslint-recommended'].overrides![0].rules,
-      ...pluginTypeScript.configs.strict.rules,
-
-      '@typescript-eslint/ban-ts-comment': 'off',
-      '@typescript-eslint/ban-types': 'off',
-      '@typescript-eslint/consistent-type-assertions': [
-        'error',
-        {
-          assertionStyle: 'as',
-          objectLiteralTypeAssertions: 'allow-as-parameter',
+    {
+      files,
+      languageOptions: {
+        parser: parserTs,
+        parserOptions: {
+          extraFileExtensions: componentExts.map(ext => `.${ext}`),
+          sourceType: 'module',
+          ...tsconfigPath
+            ? {
+                project: tsconfigPath,
+                tsconfigRootDir: process.cwd(),
+              }
+            : {},
+          ...parserOptions as any,
         },
-      ],
-      '@typescript-eslint/consistent-type-imports': [
-        'error',
-        { disallowTypeAnnotations: false, fixStyle: 'inline-type-imports' },
-      ],
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-import-type-side-effects': 'error',
-      '@typescript-eslint/no-non-null-assertion': 'off',
-      '@typescript-eslint/no-redeclare': 'error',
+      },
+      name: 'antfu:typescript:rules',
+      rules: {
+        ...renameRules(
+          pluginTs.configs['eslint-recommended'].overrides![0].rules!,
+          '@typescript-eslint/',
+          'ts/',
+        ),
+        ...renameRules(
+          pluginTs.configs.strict.rules!,
+          '@typescript-eslint/',
+          'ts/',
+        ),
 
-      // handled by unused-imports/no-unused-imports
-      '@typescript-eslint/no-unused-vars': 'off',
+        'antfu/generic-spacing': 'error',
+        'antfu/named-tuple-spacing': 'error',
 
-      '@typescript-eslint/prefer-as-const': 'warn',
-      '@typescript-eslint/prefer-literal-enum-member': [
-        'error',
-        { allowBitwiseExpressions: true },
-      ],
+        'no-dupe-class-members': 'off',
+        'no-invalid-this': 'off',
+        'no-loss-of-precision': 'off',
+        'no-redeclare': 'off',
+        'no-use-before-define': 'off',
+        'no-useless-constructor': 'off',
+        'ts/ban-ts-comment': ['error', { 'ts-ignore': 'allow-with-description' }],
+        'ts/ban-types': ['error', { types: { Function: false } }],
+        'ts/consistent-type-definitions': ['error', 'interface'],
+        'ts/consistent-type-imports': ['error', { disallowTypeAnnotations: false, prefer: 'type-imports' }],
+        'ts/no-dupe-class-members': 'error',
+        'ts/no-dynamic-delete': 'off',
+        'ts/no-explicit-any': 'off',
+        'ts/no-extraneous-class': 'off',
+        'ts/no-import-type-side-effects': 'error',
+        'ts/no-invalid-this': 'error',
+        'ts/no-invalid-void-type': 'off',
+        'ts/no-loss-of-precision': 'error',
+        'ts/no-non-null-assertion': 'off',
+        'ts/no-redeclare': 'error',
+        'ts/no-require-imports': 'error',
+        'ts/no-unused-vars': 'off',
+        'ts/no-use-before-define': ['error', { classes: false, functions: false, variables: true }],
+        'ts/no-useless-constructor': 'off',
+        'ts/prefer-ts-expect-error': 'error',
+        'ts/triple-slash-reference': 'off',
+        'ts/unified-signatures': 'off',
 
-      'antfu/no-const-enum': 'error',
+        ...tsconfigPath ? typeAwareRules : {},
+        ...overrides,
+      },
     },
-  },
-  {
-    files: ['**/*.d.ts'],
-    rules: {
-      'eslint-comments/no-unlimited-disable': 'off',
-      'import/no-duplicates': 'off',
-      'unused-imports/no-unused-vars': 'off',
+    {
+      files: ['**/*.d.ts'],
+      name: 'antfu:typescript:dts-overrides',
+      rules: {
+        'eslint-comments/no-unlimited-disable': 'off',
+        'import/no-duplicates': 'off',
+        'no-restricted-syntax': 'off',
+        'unused-imports/no-unused-vars': 'off',
+      },
     },
-  },
-  {
-    files: ['**/*.{test,spec}.ts?(x)'],
-    rules: {
-      'no-unused-expressions': 'off',
+    {
+      files: ['**/*.{test,spec}.ts?(x)'],
+      name: 'antfu:typescript:tests-overrides',
+      rules: {
+        'no-unused-expressions': 'off',
+      },
     },
-  },
-  {
-    files: ['**/*.js', '**/*.cjs'],
-    rules: {
-      '@typescript-eslint/no-require-imports': 'off',
-      '@typescript-eslint/no-var-requires': 'off',
+    {
+      files: ['**/*.js', '**/*.cjs'],
+      name: 'antfu:typescript:javascript-overrides',
+      rules: {
+        'ts/no-require-imports': 'off',
+        'ts/no-var-requires': 'off',
+      },
     },
-  },
-]
+  ]
+}

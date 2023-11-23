@@ -1,4 +1,10 @@
+import type { FlatConfigItem } from '../types'
 import { GLOB_EXCLUDE } from '../globs'
-import type { FlatESLintConfigItem } from 'eslint-define-config'
 
-export const ignores: FlatESLintConfigItem[] = [{ ignores: GLOB_EXCLUDE }]
+export async function ignores(): Promise<FlatConfigItem[]> {
+  return [
+    {
+      ignores: GLOB_EXCLUDE,
+    },
+  ]
+}

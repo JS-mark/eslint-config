@@ -21,6 +21,16 @@ export const GLOB_VUE = '**/*.vue'
 export const GLOB_YAML = '**/*.y?(a)ml'
 export const GLOB_HTML = '**/*.htm?(l)'
 
+export const GLOB_MARKDOWN_CODE = `${GLOB_MARKDOWN}/${GLOB_SRC}`
+
+export const GLOB_TESTS = [
+  `**/__tests__/**/*.${GLOB_SRC_EXT}`,
+  `**/*.spec.${GLOB_SRC_EXT}`,
+  `**/*.test.${GLOB_SRC_EXT}`,
+  `**/*.bench.${GLOB_SRC_EXT}`,
+  `**/*.benchmark.${GLOB_SRC_EXT}`,
+]
+
 export const GLOB_ALL_SRC = [
   GLOB_SRC,
   GLOB_STYLE,
@@ -32,28 +42,28 @@ export const GLOB_ALL_SRC = [
   GLOB_HTML,
 ]
 
-export const GLOB_NODE_MODULES = '**/node_modules' as const
-export const GLOB_DIST = '**/dist' as const
-export const GLOB_LOCKFILE = [
+export const GLOB_EXCLUDE = [
+  '**/node_modules',
+  '**/dist',
   '**/package-lock.json',
   '**/yarn.lock',
   '**/pnpm-lock.yaml',
   '**/bun.lockb',
-]
-export const GLOB_EXCLUDE = [
-  GLOB_NODE_MODULES,
-  GLOB_DIST,
-  ...GLOB_LOCKFILE,
 
   '**/output',
   '**/coverage',
   '**/temp',
-  '**/fixtures',
+  '**/.temp',
+  '**/tmp',
+  '**/.tmp',
+  '**/.history',
   '**/.vitepress/cache',
   '**/.nuxt',
+  '**/.next',
   '**/.vercel',
   '**/.changeset',
   '**/.idea',
+  '**/.cache',
   '**/.output',
   '**/.vite-inspect',
 

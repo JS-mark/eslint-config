@@ -1,5 +1,9 @@
+import { t2m } from './factory'
+
 export * from './configs'
-export * from './env'
+export * from './factory'
 export * from './globs'
-export * from './plugins'
-export * from './presets'
+export * from './types'
+export * from './utils'
+
+export default t2m
