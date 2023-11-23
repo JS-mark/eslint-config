@@ -38,7 +38,7 @@
     "lint": "pnpm run stub && eslint .",
     "prepack": "nr build",
     "release": "bumpp && pnpm publish",
-    "test": "vitest",
+    "test": "pnpm build && vitest",
     "typecheck": "tsc --noEmit",
     "prepare": "simple-git-hooks"
   },

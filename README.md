@@ -1,5 +1,7 @@
 # @t2m/eslint-config
 
+Forked from [`@antfu/eslint-config`](https://github.com/antfu/eslint-config)
+
 [![npm](https://img.shields.io/npm/v/@t2m/eslint-config.svg)](https://npmjs.com/package/@t2m/eslint-config) [![code style](https://img.shields.io/badge/Code_Style-🚀_The_Mark-blue)](https://github.com/js-mark/eslint-config)
 
 - Single quotes, no semi
