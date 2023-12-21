@@ -76,7 +76,7 @@ it('ignores files added in eslint.config.js', async () => {
       "const tm2js = require('@tm2js/eslint-config').default
 
       module.exports = tm2js({
-      ignores: [\\"some-path\\",\\"**/some-path/**\\",\\"some-file\\",\\"**/some-file/**\\"]
+      ignores: ["some-path","**/some-path/**","some-file","**/some-file/**"]
       })
       "
     `)

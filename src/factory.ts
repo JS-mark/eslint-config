@@ -1,5 +1,5 @@
-import fs from 'node:fs'
 import process from 'node:process'
+import fs from 'node:fs'
 import { isPackageExists } from 'local-pkg'
 import type { Awaitable, FlatConfigItem, OptionsConfig, UserConfigItem } from './types'
 import {
@@ -17,12 +17,15 @@ import {
   sortTsconfig,
   stylistic,
   test,
+  toml,
   typescript,
   unicorn,
+  unocss,
   vue,
   yaml,
 } from './configs'
 import { combine, interopDefault } from './utils'
+import { formatters } from './configs/formatters'
 
 const flatConfigProps: (keyof FlatConfigItem)[] = [
   'files',
@@ -52,10 +55,11 @@ export async function tm2js(
   const {
     componentExts = [],
     gitignore: enableGitignore = true,
-    isInEditor = !!((process.env.VSCODE_PID || process.env.JETBRAINS_IDE) && !process.env.CI),
+    isInEditor = !!((process.env.VSCODE_PID || process.env.JETBRAINS_IDE || process.env.VIM) && !process.env.CI),
     overrides = {},
     react: enableReact = false,
     typescript: enableTypeScript = isPackageExists('typescript'),
+    unocss: enableUnoCSS = false,
     vue: enableVue = VuePackages.some(i => isPackageExists(i)),
   } = options
 
@@ -125,6 +129,9 @@ export async function tm2js(
 
   if (enableVue) {
     configs.push(vue({
+      ...typeof enableVue !== 'boolean'
+        ? enableVue
+        : {},
       overrides: overrides.vue,
       stylistic: stylisticOptions,
       typescript: !!enableTypeScript,
@@ -136,6 +143,12 @@ export async function tm2js(
       overrides: overrides.react,
       typescript: !!enableTypeScript,
     }))
+  }
+
+  if (enableUnoCSS) {
+    configs.push(unocss(
+      typeof enableUnoCSS === 'boolean' ? {} : enableUnoCSS,
+    ))
   }
 
   if (options.jsonc ?? true) {
@@ -156,11 +169,29 @@ export async function tm2js(
     }))
   }
 
-  if (options.markdown ?? true) {
-    configs.push(markdown({
-      componentExts,
-      overrides: overrides.markdown,
+  if (options.toml ?? true) {
+    configs.push(toml({
+      overrides: overrides.toml,
+      stylistic: stylisticOptions,
     }))
+  }
+
+  if (options.markdown ?? true) {
+    configs.push(
+      markdown(
+        {
+          componentExts,
+          overrides: overrides.markdown,
+        },
+      ),
+    )
+  }
+
+  if (options.formatters) {
+    configs.push(formatters(
+      options.formatters,
+      typeof stylisticOptions === 'boolean' ? {} : stylisticOptions,
+    ))
   }
 
   // User can optionally pass a flat config item to the first argument

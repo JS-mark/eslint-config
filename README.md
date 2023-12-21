@@ -13,6 +13,8 @@ Forked from [`@antfu/eslint-config`](https://github.com/antfu/eslint-config)
 - Respects `.gitignore` by default
 - [ESLint Flat config](https://eslint.org/docs/latest/use/configure/configuration-files-new), compose easily!
 - Using [ESLint Stylistic](https://github.com/eslint-stylistic/eslint-stylistic)
+- Respects `.gitignore` by default
+- Optional [formatters](#formatters) support for CSS, HTML, etc.
 - **Style principle**: Minimal for reading, stable for diff, consistent
 
 > [!IMPORTANT]
@@ -45,6 +47,9 @@ const tm2js = require('@tm2js/eslint-config').default
 
 module.exports = tm2js()
 ```
+
+> [!TIP]
+> ESLint only detects `eslint.config.js` as the flat config entry, meaning you need to put `type: module` in your `package.json` or you have to use CJS in `eslint.config.js`. If you want explicit extension like `.mjs` or `.cjs`, or even `eslint.config.ts`, you can install [`eslint-ts-patch`](https://github.com/antfu/eslint-ts-patch) to fix it.
 
 Combined with legacy config:
 
@@ -121,6 +126,7 @@ Add the following settings to your `.vscode/settings.json`:
   // Silent the stylistic rules in you IDE, but still auto fix them
   "eslint.rules.customizations": [
     { "rule": "style/*", "severity": "off" },
+    { "rule": "format/*", "severity": "off" },
     { "rule": "*-indent", "severity": "off" },
     { "rule": "*-spacing", "severity": "off" },
     { "rule": "*-spaces", "severity": "off" },
@@ -142,7 +148,8 @@ Add the following settings to your `.vscode/settings.json`:
     "markdown",
     "json",
     "jsonc",
-    "yaml"
+    "yaml",
+    "toml"
   ]
 }
 ```
@@ -237,6 +244,7 @@ import {
   sortPackageJson,
   sortTsconfig,
   stylistic,
+  toml,
   typescript,
   unicorn,
   vue,
@@ -256,6 +264,7 @@ export default await combine(
   vue(),
   jsonc(),
   yaml(),
+  toml(),
   markdown(),
 )
 ```
@@ -271,7 +280,7 @@ Check out the [configs](https://github.com/js-mark/eslint-config/blob/main/src/c
 Since flat config requires us to explicitly provide the plugin names (instead of mandatory convention from npm package name), we renamed some plugins to make overall scope more consistent and easier to write.
 
 | New Prefix | Original Prefix        | Source Plugin                                                                              |
-|------------|------------------------|--------------------------------------------------------------------------------------------|
+| ---------- | ---------------------- | ------------------------------------------------------------------------------------------ |
 | `import/*` | `i/*`                  | [eslint-plugin-i](https://github.com/un-es/eslint-plugin-i)                                |
 | `node/*`   | `n/*`                  | [eslint-plugin-n](https://github.com/eslint-community/eslint-plugin-n)                     |
 | `yaml/*`   | `yml/*`                | [eslint-plugin-yml](https://github.com/ota-meshi/eslint-plugin-yml)                        |
@@ -336,6 +345,47 @@ export default tm2js({
 
 ### Optional Configs
 
+We provide some optional configs for specific use cases, that we don't include their dependencies by default.
+
+#### Formatters
+
+> [!WARNING]
+> Experimental feature, changes might not follow semver.
+
+Use external formatters to format files that ESLint cannot handle yet (`.css`, `.html`, etc). Powered by [`eslint-plugin-format`](https://github.com/antfu/eslint-plugin-format).
+
+```js
+// eslint.config.js
+import tm2js from '@tm2js/eslint-config'
+
+export default tm2js({
+  formatters: {
+    /**
+     * Format CSS, LESS, SCSS files, also the `<style>` blocks in Vue
+     * By default uses Prettier
+     */
+    css: true,
+    /**
+     * Format HTML files
+     * By default uses Prettier
+     */
+    html: true,
+    /**
+     * Format Markdown files
+     * Supports Prettier and dprint
+     * By default uses Prettier
+     */
+    markdown: 'prettier'
+  }
+})
+```
+
+Running `npx eslint` should prompt you to install the required dependencies, otherwise, you can install them manually:
+
+```bash
+npm i -D eslint-plugin-format
+```
+
 #### React
 
 We do include configs for React. But due to the install size of React plugins we didn't include the dependencies by default.
@@ -355,6 +405,25 @@ Running `npx eslint` should prompt you to install the required dependencies, oth
 
 ```bash
 npm i -D eslint-plugin-react eslint-plugin-react-hooks eslint-plugin-react-refresh
+```
+
+#### UnoCSS
+
+To enable UnoCSS support, you need to explicitly turn it on:
+
+```js
+// eslint.config.js
+import tm2js from '@tm2js/eslint-config'
+
+export default tm2js({
+  unocss: true,
+})
+```
+
+Running `npx eslint` should prompt you to install the required dependencies, otherwise, you can install them manually:
+
+```bash
+npm i -D @unocss/eslint-plugin
 ```
 
 ### Optional Rules
@@ -415,6 +484,16 @@ and then
 npm i -D lint-staged simple-git-hooks
 ```
 
+## View what rules are enabled
+
+I built a visual tool to help you view what rules are enabled in your project and apply them to what files, [eslint-flat-config-viewer](https://github.com/antfu/eslint-flat-config-viewer)
+
+Go to your project root that contains `eslint.config.js` and run:
+
+```bash
+npx eslint-flat-config-viewer
+```
+
 ## Versioning Policy
 
 This project follows [Semantic Versioning](https://semver.org/) for releases. However, since this is just a config and involved with opinions and many moving parts, we don't treat rules changes as breaking changes.
@@ -448,9 +527,17 @@ If you enjoy this code style, and would like to mention it in your project, here
 
 [Why I don't use Prettier](https://antfu.me/posts/why-not-prettier)
 
-### How to lint CSS?
+Well, you can still use Prettier to format files that are not supported well by ESLint yet, such as `.css`, `.html`, etc. See [formatters](#formatters) for more details.
 
-This config does NOT lint CSS. I personally use [UnoCSS](https://github.com/unocss/unocss) so I don't write CSS. If you still prefer CSS, you can use [stylelint](https://stylelint.io/) for CSS linting.
+### dprint?
+
+[dprint](https://dprint.dev/) is also a great formatter that with more abilities to customize. However, it's in the same model as Prettier which reads the AST and reprints the code from scratch. This means it's similar to Prettier, which ignores the original line breaks and might also cause the inconsistent diff. So in general, we prefer to use ESLint to format and lint JavaScript/TypeScript code.
+
+Meanwhile, we do have dprint integrations for formatting other files such as `.md`. See [formatters](#formatters) for more details.
+
+### How to format CSS?
+
+You can opt-in to the [`formatters`](#formatters) feature to format your CSS. Note that it's only doing formatting, but not linting. If you want proper linting support, give [`stylelint`](https://stylelint.io/) a try.
 
 ### I prefer XXX...
 

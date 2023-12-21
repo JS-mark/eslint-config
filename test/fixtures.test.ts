@@ -42,6 +42,7 @@ runWithConfig(
   },
 )
 
+// https://github.com/antfu/eslint-config/issues/255
 runWithConfig(
   'ts-override',
   {
@@ -50,6 +51,27 @@ runWithConfig(
   {
     rules: {
       'ts/consistent-type-definitions': ['error', 'type'],
+    },
+  },
+)
+
+runWithConfig(
+  'with-formatters',
+  {
+    typescript: true,
+    vue: true,
+    formatters: true,
+  },
+)
+
+runWithConfig(
+  'no-markdown-with-formatters',
+  {
+    jsx: false,
+    vue: false,
+    markdown: false,
+    formatters: {
+      markdown: true,
     },
   },
 )
@@ -89,10 +111,14 @@ export default tm2js(
     })
 
     await Promise.all(files.map(async (file) => {
-      let content = await fs.readFile(join(target, file), 'utf-8')
+      const content = await fs.readFile(join(target, file), 'utf-8')
       const source = await fs.readFile(join(from, file), 'utf-8')
-      if (content === source)
-        content = '// unchanged\n'
+      const outputPath = join(output, file)
+      if (content === source) {
+        if (fs.existsSync(outputPath))
+          fs.remove(outputPath)
+        return
+      }
       await expect.soft(content).toMatchFileSnapshot(join(output, file))
     }))
   }, 30_000)

@@ -1,6 +1,7 @@
+import { mergeProcessors, processorPassThrough } from 'eslint-merge-processors'
 import type { FlatConfigItem, OptionsComponentExts, OptionsFiles, OptionsOverrides } from '../types'
-import { GLOB_MARKDOWN, GLOB_MARKDOWN_CODE } from '../globs'
-import { interopDefault } from '../utils'
+import { GLOB_MARKDOWN, GLOB_MARKDOWN_CODE, GLOB_MARKDOWN_IN_MARKDOWN } from '../globs'
+import { interopDefault, parserPlain } from '../utils'
 
 export async function markdown(
   options: OptionsFiles & OptionsComponentExts & OptionsOverrides = {},
@@ -11,18 +12,34 @@ export async function markdown(
     overrides = {},
   } = options
 
+  // @ts-expect-error missing types
+  const markdown = await interopDefault(import('eslint-plugin-markdown'))
+
   return [
     {
       name: 'antfu:markdown:setup',
       plugins: {
-        // @ts-expect-error missing types
-        markdown: await interopDefault(import('eslint-plugin-markdown')),
+        markdown,
       },
     },
     {
       files,
+      ignores: [GLOB_MARKDOWN_IN_MARKDOWN],
       name: 'antfu:markdown:processor',
-      processor: 'markdown/markdown',
+      // `eslint-plugin-markdown` only creates virtual files for code blocks,
+      // but not the markdown file itself. We use `eslint-merge-processors` to
+      // add a pass-through processor for the markdown file itself.
+      processor: mergeProcessors([
+        markdown.processors.markdown,
+        processorPassThrough,
+      ]),
+    },
+    {
+      files,
+      languageOptions: {
+        parser: parserPlain,
+      },
+      name: 'antfu:markdown:parser',
     },
     {
       files: [
@@ -36,10 +53,8 @@ export async function markdown(
           },
         },
       },
-      name: 'antfu:markdown:rules',
+      name: 'antfu:markdown:disables',
       rules: {
-        'antfu/no-ts-export-equal': 'off',
-
         'import/newline-after-import': 'off',
 
         'no-alert': 'off',

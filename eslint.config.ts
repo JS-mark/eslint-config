@@ -1,6 +1,6 @@
-// @ts-check
+// @ts-expect-error missing types
 import styleMigrate from '@stylistic/eslint-plugin-migrate'
-import tm2js from './dist/index.js'
+import tm2js from './src'
 
 export default tm2js(
   {
@@ -11,6 +11,7 @@ export default tm2js(
       'fixtures',
       '_fixtures',
     ],
+    formatters: true,
   },
   {
     files: ['src/**/*.ts'],
