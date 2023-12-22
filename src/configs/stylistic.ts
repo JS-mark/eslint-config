@@ -1,6 +1,6 @@
 import { interopDefault } from '../utils'
 import type { FlatConfigItem, StylisticConfig } from '../types'
-import { pluginAntfu } from '../plugins'
+import { pluginTm2js } from '../plugins'
 
 export const StylisticConfigDefaults: StylisticConfig = {
   indent: 2,
@@ -33,19 +33,19 @@ export async function stylistic(options: StylisticConfig = {}): Promise<FlatConf
 
   return [
     {
-      name: 'antfu:stylistic',
+      name: 'tm2js:stylistic',
       plugins: {
-        antfu: pluginAntfu,
         style: pluginStylistic,
+        tm2js: pluginTm2js,
       },
       rules: {
         ...config.rules,
 
-        'antfu/consistent-list-newline': 'error',
-        'antfu/if-newline': 'error',
-        'antfu/top-level-function': 'error',
-
         'curly': ['error', 'multi-or-nest', 'consistent'],
+        'tm2js/consistent-list-newline': 'error',
+        'tm2js/if-newline': 'error',
+
+        'tm2js/top-level-function': 'error',
       },
     },
   ]

@@ -22,7 +22,7 @@ import type {
 import type { RuleOptions as JSDocRules } from '@eslint-types/jsdoc/types'
 import type { RuleOptions as TypeScriptRules } from '@eslint-types/typescript-eslint/types'
 import type { RuleOptions as UnicornRules } from '@eslint-types/unicorn/types'
-import type { Rules as AntfuRules } from 'eslint-plugin-antfu'
+import type { Rules as Tm2jsRules } from 'eslint-plugin-tm2js'
 import type { StylisticCustomizeOptions, UnprefixedRuleOptions as StylisticRules } from '@stylistic/eslint-plugin'
 import type { VendoredPrettierOptions } from './vender/prettier-types'
 
@@ -39,7 +39,7 @@ export type Rules = WrapRuleConfig<
     RenamePrefix<YmlRules, 'yml/', 'yaml/'> &
     RenamePrefix<NRules, 'n/', 'node/'> &
     Prefix<StylisticRules, 'style/'> &
-    Prefix<AntfuRules, 'antfu/'> &
+    Prefix<Tm2jsRules, 'tm2js/'> &
     ReactHooksRules &
     ReactRules &
     JSDocRules &
@@ -84,7 +84,7 @@ export interface OptionsVue {
   /**
    * Create virtual files for Vue SFC blocks to enable linting.
    *
-   * @see https://github.com/antfu/eslint-processor-vue-blocks
+   * @see https://github.com/tm2js/eslint-processor-vue-blocks
    * @default true
    */
   sfcBlocks?: boolean | VueBlocksOptions
@@ -204,7 +204,7 @@ export interface OptionsConfig extends OptionsComponentExts {
    *
    * Passing an object to configure the options.
    *
-   * @see https://github.com/antfu/eslint-config-flat-gitignore
+   * @see https://github.com/tm2js/eslint-config-flat-gitignore
    * @default true
    */
   gitignore?: boolean | FlatGitignoreOptions

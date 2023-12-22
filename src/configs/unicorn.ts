@@ -4,7 +4,7 @@ import { pluginUnicorn } from '../plugins'
 export async function unicorn(): Promise<FlatConfigItem[]> {
   return [
     {
-      name: 'antfu:unicorn',
+      name: 'tm2js:unicorn',
       plugins: {
         unicorn: pluginUnicorn,
       },

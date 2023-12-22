@@ -1,6 +1,6 @@
 import globals from 'globals'
 import type { FlatConfigItem, OptionsIsInEditor, OptionsOverrides } from '../types'
-import { pluginAntfu, pluginUnusedImports } from '../plugins'
+import { pluginTm2js, pluginUnusedImports } from '../plugins'
 import { GLOB_SRC, GLOB_SRC_EXT } from '../globs'
 
 export async function javascript(
@@ -35,9 +35,9 @@ export async function javascript(
       linterOptions: {
         reportUnusedDisableDirectives: true,
       },
-      name: 'antfu:javascript',
+      name: 'tm2js:javascript',
       plugins: {
-        'antfu': pluginAntfu,
+        'tm2js': pluginTm2js,
         'unused-imports': pluginUnusedImports,
       },
       rules: {
@@ -217,7 +217,7 @@ export async function javascript(
     },
     {
       files: [`scripts/${GLOB_SRC}`, `cli.${GLOB_SRC_EXT}`],
-      name: 'antfu:scripts-overrides',
+      name: 'tm2js:scripts-overrides',
       rules: {
         'no-console': 'off',
       },

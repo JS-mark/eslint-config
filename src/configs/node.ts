@@ -4,7 +4,7 @@ import { pluginNode } from '../plugins'
 export async function node(): Promise<FlatConfigItem[]> {
   return [
     {
-      name: 'antfu:node',
+      name: 'tm2js:node',
       plugins: {
         node: pluginNode,
       },

@@ -34,7 +34,7 @@ export async function vue(
 
   return [
     {
-      name: 'antfu:vue:setup',
+      name: 'tm2js:vue:setup',
       plugins: {
         vue: pluginVue,
       },
@@ -54,7 +54,7 @@ export async function vue(
           sourceType: 'module',
         },
       },
-      name: 'antfu:vue:rules',
+      name: 'tm2js:vue:rules',
       processor: sfcBlocks === false
         ? pluginVue.processors['.vue']
         : mergeProcessors([
