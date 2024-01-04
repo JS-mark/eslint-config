@@ -6,19 +6,20 @@ Forked from [`@antfu/eslint-config`](https://github.com/antfu/eslint-config)
 
 - Single quotes, no semi
 - Auto fix for formatting (aimed to be used standalone **without** Prettier)
-- Designed to work with TypeScript, JSX, Vue out-of-box
-- Lints also for json, yaml, markdown
 - Sorted imports, dangling commas
-- Reasonable defaults, best practices, only one-line of config
-- Respects `.gitignore` by default
+- Reasonable defaults, best practices, only one line of config
+- Designed to work with TypeScript, JSX, Vue out-of-box
+- Lints also for json, yaml, toml, markdown
+- Opinionated, but [very customizable](#customization)
 - [ESLint Flat config](https://eslint.org/docs/latest/use/configure/configuration-files-new), compose easily!
 - Using [ESLint Stylistic](https://github.com/eslint-stylistic/eslint-stylistic)
 - Respects `.gitignore` by default
+- Optional [React](#react), [Svelte](#svelte), [UnoCSS](#unocss) support
 - Optional [formatters](#formatters) support for CSS, HTML, etc.
 - **Style principle**: Minimal for reading, stable for diff, consistent
 
 > [!IMPORTANT]
-> Since v1.0.0, this config is rewritten to the new [ESLint Flat config](https://eslint.org/docs/latest/use/configure/configuration-files-new), check the [release note](https://github.com/js-mark/eslint-config/releases/tag/v1.0.0) for more details.
+> Since v1.0.0, this config is rewritten to the new [ESLint Flat config](https://eslint.org/docs/latest/use/configure/configuration-files-new), check the [release note](https://github.com/antfu/eslint-config/releases/tag/v1.0.0) for more details.
 
 ## Usage
 
@@ -227,7 +228,7 @@ Going more advanced, you can also import fine-grained configs and compose them a
 <details>
 <summary>Advanced Example</summary>
 
-We don't recommend using this style in general usages, as there are shared options between configs and might need extra care to make them consistent.
+We wouldn't recommend using this style in general unless you know exactly what they are doing, as there are shared options between configs and might need extra care to make them consistent.
 
 ```js
 // eslint.config.js
@@ -251,7 +252,7 @@ import {
   yaml,
 } from '@tm2js/eslint-config'
 
-export default await combine(
+export default combine(
   ignores(),
   javascript(/* Options */),
   comments(),
@@ -271,23 +272,22 @@ export default await combine(
 
 </details>
 
-Check out the [configs](https://github.com/js-mark/eslint-config/blob/main/src/configs) and [factory](https://github.com/js-mark/eslint-config/blob/main/src/factory.ts) for more details.
+Check out the [configs](https://github.com/antfu/eslint-config/blob/main/src/configs) and [factory](https://github.com/antfu/eslint-config/blob/main/src/factory.ts) for more details.
 
 > Thanks to [sxzz/eslint-config](https://github.com/sxzz/eslint-config) for the inspiration and reference.
 
 ### Plugins Renaming
 
-Since flat config requires us to explicitly provide the plugin names (instead of mandatory convention from npm package name), we renamed some plugins to make overall scope more consistent and easier to write.
-
-| New Prefix | Original Prefix        | Source Plugin                                                                              |
+Since flat config requires us to explicitly provide the plugin names (instead of the mandatory convention from npm package name), we renamed some plugins to make the overall scope more consistent and easier to write.
+| New Prefix | Original Prefix | Source Plugin |
 | ---------- | ---------------------- | ------------------------------------------------------------------------------------------ |
-| `import/*` | `i/*`                  | [eslint-plugin-i](https://github.com/un-es/eslint-plugin-i)                                |
-| `node/*`   | `n/*`                  | [eslint-plugin-n](https://github.com/eslint-community/eslint-plugin-n)                     |
-| `yaml/*`   | `yml/*`                | [eslint-plugin-yml](https://github.com/ota-meshi/eslint-plugin-yml)                        |
-| `ts/*`     | `@typescript-eslint/*` | [@typescript-eslint/eslint-plugin](https://github.com/typescript-eslint/typescript-eslint) |
-| `style/*`  | `@stylistic/*`         | [@stylistic/eslint-plugin](https://github.com/eslint-stylistic/eslint-stylistic)           |
-| `test/*`   | `vitest/*`             | [eslint-plugin-vitest](https://github.com/veritem/eslint-plugin-vitest)                    |
-| `test/*`   | `no-only-tests/*`      | [eslint-plugin-no-only-tests](https://github.com/levibuzolic/eslint-plugin-no-only-tests)  |
+| `import/*` | `i/*` | [eslint-plugin-i](https://github.com/un-es/eslint-plugin-i) |
+| `node/*` | `n/*` | [eslint-plugin-n](https://github.com/eslint-community/eslint-plugin-n) |
+| `yaml/*` | `yml/*` | [eslint-plugin-yml](https://github.com/ota-meshi/eslint-plugin-yml) |
+| `ts/*` | `@typescript-eslint/*` | [@typescript-eslint/eslint-plugin](https://github.com/typescript-eslint/typescript-eslint) |
+| `style/*` | `@stylistic/*` | [@stylistic/eslint-plugin](https://github.com/eslint-stylistic/eslint-stylistic) |
+| `test/*` | `vitest/*` | [eslint-plugin-vitest](https://github.com/veritem/eslint-plugin-vitest) |
+| `test/*` | `no-only-tests/*` | [eslint-plugin-no-only-tests](https://github.com/levibuzolic/eslint-plugin-no-only-tests) |
 
 When you want to override rules, or disable them inline, you need to update to the new prefix:
 
@@ -323,23 +323,28 @@ export default await tm2js(
 )
 ```
 
-We also provided a `overrides` options to make it easier:
+We also provided a `overrides` options in each integration to make it easier:
 
 ```js
 // eslint.config.js
 import tm2js from '@tm2js/eslint-config'
 
 export default tm2js({
-  overrides: {
-    vue: {
+  vue: {
+    overrides: {
       'vue/operator-linebreak': ['error', 'before'],
     },
-    typescript: {
+  },
+  typescript: {
+    overrides: {
       'ts/consistent-type-definitions': ['error', 'interface'],
     },
-    yaml: {},
-    // ...
-  }
+  },
+  yaml: {
+    overrides: {
+      // ...
+    },
+  },
 })
 ```
 
@@ -388,9 +393,7 @@ npm i -D eslint-plugin-format
 
 #### React
 
-We do include configs for React. But due to the install size of React plugins we didn't include the dependencies by default.
-
-To enable React support, need to explicitly turn it on:
+To enable React support, you need to explicitly turn it on:
 
 ```js
 // eslint.config.js
@@ -401,10 +404,29 @@ export default tm2js({
 })
 ```
 
-Running `npx eslint` should prompt you to install the required dependencies, otherwise you can install them manually:
+Running `npx eslint` should prompt you to install the required dependencies, otherwise, you can install them manually:
 
 ```bash
 npm i -D eslint-plugin-react eslint-plugin-react-hooks eslint-plugin-react-refresh
+```
+
+#### Svelte
+
+To enable svelte support, you need to explicitly turn it on:
+
+```js
+// eslint.config.js
+import antfu from '@antfu/eslint-config'
+
+export default antfu({
+  svelte: true,
+})
+```
+
+Running `npx eslint` should prompt you to install the required dependencies, otherwise, you can install them manually:
+
+```bash
+npm i -D eslint-plugin-svelte
 ```
 
 #### UnoCSS
@@ -428,7 +450,7 @@ npm i -D @unocss/eslint-plugin
 
 ### Optional Rules
 
-This config also provides some optional plugins/rules for extended usages.
+This config also provides some optional plugins/rules for extended usage.
 
 #### `perfectionist` (sorting)
 
@@ -482,6 +504,8 @@ and then
 
 ```bash
 npm i -D lint-staged simple-git-hooks
+// to active the hooks
+npx simple-git-hooks
 ```
 
 ## View what rules are enabled
@@ -496,7 +520,7 @@ npx eslint-flat-config-viewer
 
 ## Versioning Policy
 
-This project follows [Semantic Versioning](https://semver.org/) for releases. However, since this is just a config and involved with opinions and many moving parts, we don't treat rules changes as breaking changes.
+This project follows [Semantic Versioning](https://semver.org/) for releases. However, since this is just a config and involves opinions and many moving parts, we don't treat rules changes as breaking changes.
 
 ### Changes Considered as Breaking Changes
 
@@ -541,7 +565,7 @@ You can opt-in to the [`formatters`](#formatters) feature to format your CSS. No
 
 ### I prefer XXX...
 
-Sure, you can config and override rules locally in your project to fit your needs. If that still does not work for you, you can always fork this repo and maintain your own.
+Sure, you can configure and override rules locally in your project to fit your needs. If that still does not work for you, you can always fork this repo and maintain your own.
 
 ## Check Also
 

@@ -1,5 +1,5 @@
 import { interopDefault } from '../utils'
-import type { FlatConfigItem, StylisticConfig } from '../types'
+import type { FlatConfigItem, OptionsOverrides, StylisticConfig } from '../types'
 import { pluginTm2js } from '../plugins'
 
 export const StylisticConfigDefaults: StylisticConfig = {
@@ -9,10 +9,13 @@ export const StylisticConfigDefaults: StylisticConfig = {
   semi: false,
 }
 
-export async function stylistic(options: StylisticConfig = {}): Promise<FlatConfigItem[]> {
+export async function stylistic(
+  options: StylisticConfig & OptionsOverrides = {},
+): Promise<FlatConfigItem[]> {
   const {
     indent,
     jsx,
+    overrides = {},
     quotes,
     semi,
   } = {
@@ -40,12 +43,11 @@ export async function stylistic(options: StylisticConfig = {}): Promise<FlatConf
       },
       rules: {
         ...config.rules,
-
         'curly': ['error', 'multi-or-nest', 'consistent'],
         'tm2js/consistent-list-newline': 'error',
         'tm2js/if-newline': 'error',
-
         'tm2js/top-level-function': 'error',
+        ...overrides,
       },
     },
   ]
