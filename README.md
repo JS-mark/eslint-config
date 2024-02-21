@@ -194,7 +194,7 @@ export default await tm2js({
 
   // `.eslintignore` is no longer supported in Flat config, use `ignores` instead
   ignores: [
-    './fixtures',
+    '**/fixtures',
     // ...globs
   ]
 })
@@ -245,6 +245,7 @@ import {
   sortPackageJson,
   sortTsconfig,
   stylistic,
+  svelte,
   toml,
   typescript,
   unicorn,
@@ -266,6 +267,7 @@ export default combine(
   jsonc(),
   yaml(),
   toml(),
+  svelte(),
   markdown(),
 )
 ```
@@ -306,7 +308,10 @@ Certain rules would only be enabled in specific files, for example, `ts/*` rules
 import tm2js from '@tm2js/eslint-config'
 
 export default await tm2js(
-  { vue: true, typescript: true },
+  {
+    vue: true,
+    typescript: true
+  },
   {
     // Remember to specify the file glob here, otherwise it might cause the vue plugin to handle non-vue files
     files: ['**/*.vue'],

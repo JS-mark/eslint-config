@@ -29,6 +29,7 @@ import { combine, interopDefault } from './utils'
 import { formatters } from './configs/formatters'
 
 const flatConfigProps: (keyof FlatConfigItem)[] = [
+  'name',
   'files',
   'ignores',
   'languageOptions',
@@ -56,7 +57,7 @@ export async function tm2js(
   const {
     componentExts = [],
     gitignore: enableGitignore = true,
-    isInEditor = !!((process.env.VSCODE_PID || process.env.JETBRAINS_IDE || process.env.VIM) && !process.env.CI),
+    isInEditor = !!((process.env.VSCODE_PID || process.env.VSCODE_CWD || process.env.JETBRAINS_IDE || process.env.VIM) && !process.env.CI),
     react: enableReact = false,
     svelte: enableSvelte = false,
     typescript: enableTypeScript = isPackageExists('typescript'),
@@ -113,6 +114,7 @@ export async function tm2js(
     configs.push(typescript({
       ...resolveSubOptions(options, 'typescript'),
       componentExts,
+      overrides: getOverrides(options, 'typescript'),
     }))
   }
 
@@ -133,6 +135,7 @@ export async function tm2js(
   if (enableVue) {
     configs.push(vue({
       ...resolveSubOptions(options, 'vue'),
+      overrides: getOverrides(options, 'vue'),
       stylistic: stylisticOptions,
       typescript: !!enableTypeScript,
     }))
